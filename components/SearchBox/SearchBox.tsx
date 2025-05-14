@@ -1,11 +1,11 @@
 import css from './SearchBox.module.css';
 
-interface SearchBoxProps {
+interface SearchProps {
   value: string;
   onSearch: (searchText: string) => void;
 }
 
-export default function SearchBox({ value, onSearch }: SearchBoxProps) {
+export default function SearchBox({ value, onSearch }: SearchProps) {
   return (
     <input
       className={css.input}

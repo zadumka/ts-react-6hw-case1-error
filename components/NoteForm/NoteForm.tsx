@@ -15,7 +15,7 @@ const NoteSchema = Yup.object().shape({
     .required('Tag is required'),
 });
 
-interface NoteFormProps {
+interface NoteModalProps {
   onClose: () => void;
 }
 
@@ -31,9 +31,8 @@ const initialValues: FormValues = {
   tag: 'Todo',
 };
 
-export default function NoteForm({ onClose }: NoteFormProps) {
+export default function NoteForm({ onClose }: NoteModalProps) {
   const queryClient = useQueryClient();
-
   const mutation = useMutation({
     mutationFn: createNote,
     onSuccess: () => {
@@ -55,13 +54,11 @@ export default function NoteForm({ onClose }: NoteFormProps) {
           <Field id="title" type="text" name="title" className={css.input} />
           <ErrorMessage name="title" component="span" className={css.error} />
         </div>
-
         <div className={css.formGroup}>
           <label htmlFor="content">Content</label>
           <Field id="content" as="textarea" name="content" rows="8" className={css.textarea} />
           <ErrorMessage name="content" component="span" className={css.error} />
         </div>
-
         <div className={css.formGroup}>
           <label htmlFor="tag">Tag</label>
           <Field id="tag" as="select" name="tag" className={css.select}>
@@ -73,7 +70,6 @@ export default function NoteForm({ onClose }: NoteFormProps) {
           </Field>
           <ErrorMessage name="tag" component="span" className={css.error} />
         </div>
-
         <div className={css.actions}>
           <button type="button" className={css.cancelButton} onClick={onClose}>
             Cancel
