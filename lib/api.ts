@@ -1,86 +1,86 @@
-import axios from "axios";
-import type { Note, NoteFormValues } from "../types/note";
 
-type FetchNotesParams = {
-  page: number;
-  searchQuery?: string;
-  perPage?: number;
+import axios from 'axios';
+import { Note } from '@/types/note';
+
+export const updateNoteById = async (
+  id: number,
+  note: {
+    title: string;
+    content: string;
+    tag: string;
+  }
+) => {
+  const { data } = await axios.put(`${API_BASE}/notes/${id}`, note, {
+    headers: {
+      Authorization: `Bearer ${TOKEN}`,
+    },
+  });
+
+  return data;
 };
 
-interface ApiResponse {
+
+
+export interface NotesResponse {
   notes: Note[];
   totalPages: number;
 }
 
-axios.defaults.baseURL = "https://notehub-public.goit.study/api";
-const token = process.env.NEXT_PUBLIC_NOTEHUB_TOKEN;
+const API_BASE = process.env.NEXT_PUBLIC_API_BASE_URL;
+const TOKEN = process.env.NEXT_PUBLIC_NOTEHUB_TOKEN;
 
-export const fetchNotes = async ({
+export const fetchNotes = async (
   page = 1,
-  searchQuery,
-  perPage = 12,
-}: FetchNotesParams): Promise<ApiResponse> => {
-  const params: { [key: string]: unknown } = {
-    page,
-    perPage,
-  };
+  query = ''
+): Promise<NotesResponse> => {
+  const searchParam = query ? `&search=${encodeURIComponent(query)}` : '';
+  const url = `${API_BASE}/notes?page=${page}${searchParam}`;
 
-  if (searchQuery) {
-    params.search = searchQuery;
-  }
+  console.log('➡️ Fetch URL:', url);
 
-  try {
-    const response = await axios.get<ApiResponse>(`/notes`, {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-      params,
-    });
-    return response.data;
-  } catch (error) {
-    console.error("Failed to fetch notes:", error);
-    throw error;
-  }
+  const { data } = await axios.get<NotesResponse>(url, {
+    headers: {
+      Authorization: `Bearer ${TOKEN}`,
+    },
+  });
+
+  return data;
 };
 
-export const createNote = async (newNote: NoteFormValues): Promise<Note> => {
-  try {
-    const response = await axios.post<Note>(`/notes`, newNote, {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    });
-    return response.data;
-  } catch (error) {
-    console.error("Failed to create note:", error);
-    throw error;
-  }
-};
 
-export const deleteNote = async (id: number): Promise<Note> => {
-  try {
-    const response = await axios.delete<Note>(`/notes/${id}`, {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    });
-    return response.data;
-  } catch (error) {
-    console.error("Failed to delete note:", error);
-    throw error;
-  }
-};
 
 export const fetchNoteById = async (id: number): Promise<Note> => {
-  try {
-    const response = await axios.get<Note>(`/notes/${id}`, {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    });
-    return response.data;
-  } catch (error) {
-    console.error(`Failed to fetch note with id ${id}:`, error);
-    throw error;
-  }
+  const { data } = await axios.get<Note>(`${API_BASE}/notes/${id}`, {
+    headers: {
+      Authorization: `Bearer ${TOKEN}`,
+    },
+  });
+
+  return data;
+};
+
+
+export const deleteNote = async (id: number): Promise<Note> => {
+  const { data } = await axios.delete<Note>(`${API_BASE}/notes/${id}`, {
+    headers: {
+      Authorization: `Bearer ${TOKEN}`,
+    },
+  });
+
+  return data;
+};
+
+
+export const createNote = async (note: {
+  title: string;
+  content: string;
+  tag: string;
+}): Promise<Note> => {
+  const { data } = await axios.post<Note>(`${API_BASE}/notes`, note, {
+    headers: {
+      Authorization: `Bearer ${TOKEN}`,
+    },
+  });
+
+  return data;
 };
