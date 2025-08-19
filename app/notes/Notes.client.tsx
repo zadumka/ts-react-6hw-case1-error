@@ -8,28 +8,30 @@ import NoteForm from "@/components/NoteForm/NoteForm";
 import NoteList from "@/components/NoteList/NoteList";
 import SearchBox from "@/components/SearchBox/SearchBox";
 import Pagination from "@/components/Pagination/Pagination";
-import { fetchNotes } from "@/lib/api"";
+import { fetchNotes } from "@/lib/api";
 
 import css from "./page.module.css";
 
-export default function NotesClient() {
-  const [page, setPage] = useState(1);
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [query, setQuery] = useState('');
+interface NotesClientProps {
+  notesTag: string;
+}
 
-  
-  const { data, isSuccess } = useQuery({
-    queryKey: ['notes', query, page],
-    queryFn: () => fetchNotes(query, page),
+export default function NotesClient({ notesTag }: NotesClientProps) {
+  const [currentPage, setCurrentPage] = useState(1);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
+
+ 
+  const { data } = useQuery({
+    queryKey: [""notes"", searchQuery, notesTag, currentPage],
+    queryFn: () => fetchNotes(searchQuery, currentPage, notesTag),
     placeholderData: keepPreviousData,
   });
 
-  const openModal = () => setIsModalOpen(true);
-  const closeModal = () => setIsModalOpen(false);
-
+  const toggleModal = () => setIsModalOpen((prev) => !prev);
   const changeSearchQuery = (newQuery: string) => {
-    setPage(1);
-    setQuery(newQuery);
+   
+    setSearchQuery(newQuery);
   };
 
   const totalPages = data?.totalPages ?? 0;
@@ -37,26 +39,26 @@ export default function NotesClient() {
 
   return (
     <div className={css.app}>
-      <header className={css.toolbar}>
-        <SearchBox value={query} onSearch={changeSearchQuery} />
-        {}
+      <SearchBox value={searchQuery} onSearch={changeSearchQuery} />
+      {totalPages > 1 && (
         <Pagination
           totalPages={totalPages}
-          currentPage={page}
-          onPageChange={setPage}
+          currentPage={currentPage}
+          onPageChange={setCurrentPage}
         />
-        <button className={css.button} onClick={openModal}>
-          Create note +
-        </button>
-      </header>
+      )}
+      <button className={css.button} onClick={toggleModal}>
+        Create note +
+      </button>
 
       {isModalOpen && (
-        <Modal onClose={closeModal}>
-          <NoteForm onClose={closeModal} />
+        <Modal onClose={toggleModal}>
+          <NoteForm />
+         
         </Modal>
       )}
 
-      {isSuccess && <NoteList notes={notes} />}
+      {notes.length > 0 && <NoteList notes={notes} />}
     </div>
   );
 }
